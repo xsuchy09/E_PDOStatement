@@ -119,7 +119,7 @@ Preferred method: install using composer:
 
 ```json
 "require" : {
-	"noahheck/e_pdostatement" : "2.*"
+	"xsuchy09/e_pdostatement" : "2.*"
 }
 ```
 
