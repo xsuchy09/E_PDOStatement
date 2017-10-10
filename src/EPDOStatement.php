@@ -133,13 +133,15 @@ class EPDOStatement extends PDOStatement
          */
         if (is_numeric($marker)) {
             $marker = "\?";
+			$limit = 1;
         } else {
             $marker = (preg_match("/^:/", $marker)) ? $marker : ":" . $marker;
+			$limit = -1;
         }
 
         $testParam = "/({$marker}(?!\w))(?=(?:[^\"']|[\"'][^\"']*[\"'])*$)/";
 
-        return preg_replace($testParam, $replValue, $queryString, 1);
+        return preg_replace($testParam, $replValue, $queryString, $limit);
     }
 
     /**
