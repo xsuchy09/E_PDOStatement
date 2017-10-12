@@ -139,7 +139,8 @@ class EPDOStatement extends PDOStatement
 			$limit = -1;
 		}
 
-		$testParam = "/({$marker}(?!\w))(?=(?:[^\"']|[\"'][^\"']*[\"'])*$)/";
+		//$testParam = "/({$marker}(?!\w))(?=(?:[^\"']|[\"'][^\"']*[\"'])*$)/";
+		$testParam = "/({$marker}(?!\w))/";
 
 		return preg_replace($testParam, $replValue, $queryString, $limit);
 	}
