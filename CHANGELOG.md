@@ -2,7 +2,7 @@
 
 ### 3.0.0 (2018-12-10)
 #### Added
-- PHP 7.3 support. For lower PHP versions use version 2.2.2.
+- PHP 7.2, 7.3 support. For lower PHP versions use version 2.2.2.
 
 ### 2.2.2 (2017-10-12)
 #### Fixed
