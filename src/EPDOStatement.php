@@ -75,9 +75,9 @@ class EPDOStatement extends PDOStatement
 	 */
 	public function bindParam($param, &$value, $datatype = null, $length = null, $driverOptions = null): bool
 	{
-		/*if ($datatype === null) {
+		if ($datatype === null) {
 			$datatype = PDO::PARAM_STR;
-		}*/
+		}
 		$this->boundParams[$param] = [
 			'value' => &$value,
 			'datatype' => $datatype
@@ -98,6 +98,9 @@ class EPDOStatement extends PDOStatement
 	 */
 	public function bindValue($param, $value, $datatype = null): bool
 	{
+		if ($datatype === null) {
+			$datatype = PDO::PARAM_STR;
+		}
 		$this->boundParams[$param] = [
 			'value' => $value,
 			'datatype' => $datatype
