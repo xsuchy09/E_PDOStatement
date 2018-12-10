@@ -15,17 +15,16 @@ A common method for obtaining the interpolated query involves usage of outside f
 The E_PDOStatement (<strong>E</strong>nhanced PDOStatement) project was designed as a solution to this that doesn't require workflow modifications to generate the resultant query string. The generated query string is accessible on the new `EPDOStatement` object as a new `fullQuery` property :
 
 ```php
-<?php
 $content    = $_POST['content'];
 $title      = $_POST['title'];
-$date       = date("Y-m-d");
+$date       = date('Y-m-d');
 
-$query      = "INSERT INTO posts SET content = :content, title = :title, date = :date"
+$query      = 'INSERT INTO posts SET content = :content, title = :title, date = :date';
 $stmt       = $pdo->prepare($query);
 
-$stmt->bindParam(":content", $content, PDO::PARAM_STR);
-$stmt->bindParam(":title"  , $title  , PDO::PARAM_STR);
-$stmt->bindParam(":date"   , $date   , PDO::PARAM_STR);
+$stmt->bindParam(':content', $content, PDO::PARAM_STR);
+$stmt->bindParam(':title'  , $title  , PDO::PARAM_STR);
+$stmt->bindParam(':date'   , $date   , PDO::PARAM_STR);
 
 $stmt->execute();
 
@@ -35,7 +34,7 @@ echo $stmt->fullQuery;
 
 The result of this will be (on a MySQL database):
 
-```
+```mysql
 INSERT INTO posts SET content = 'There are several reasons you shouldn\'t do that, including [...]', title = 'Why You Shouldn\'t Do That', date = '2016-05-13'
 ```
 
@@ -43,8 +42,7 @@ When correctly configured, the interpolated values are escaped appropriately for
 
 E_PDOStatement supports pre-execution binding to both named and ? style parameter markers:
 ```php
-$query      = "INSERT INTO posts SET content = ?, title = ?, date = ?";
-
+$query      = 'INSERT INTO posts SET content = ?, title = ?, date = ?';
 ...
 
 $stmt->bindParam(1, $content, PDO::PARAM_STR);
@@ -55,11 +53,11 @@ $stmt->bindParam(3, $date   , PDO::PARAM_STR);
 as well as un-named parameters provided as input arguments to the `$stmt->execute()` method:
 
 ```php
-$query      = "INSERT INTO posts SET content = ?, title = ?, date = ?";
+$query      = 'INSERT INTO posts SET content = ?, title = ?, date = ?';
 
 ...
 
-$params     = array($content, $title, $date);
+$params     = [$content, $title, $date];
 
 $stmt->execute($params);
 
@@ -67,14 +65,14 @@ $stmt->execute($params);
 
 Named $key => $value pairs can also be provided as input arguments to the `$stmt->execute()` method:
 ```php
-$query      = "INSERT INTO posts SET content = :content, title = :title, date = :date";
+$query      = 'INSERT INTO posts SET content = :content, title = :title, date = :date';
 
 ...
 
 $params     = array(
-      ":content" => $content
-    , ":title"   => $title
-    , ":date"    => $date
+    ':content' => $content, 
+    ':title'   => $title, 
+    ':date'    => $date, 
 );
 
 $stmt->execute($params);
@@ -84,14 +82,14 @@ You can also generate the full query string without executing the query:
 ```php
 $content    = $_POST['content'];
 $title      = $_POST['title'];
-$date       = date("Y-m-d");
+$date       = date('Y-m-d');
 
-$query      = "INSERT INTO posts SET content = :content, title = :title, date = :date"
+$query      = 'INSERT INTO posts SET content = :content, title = :title, date = :date';
 $stmt       = $pdo->prepare($query);
 
-$stmt->bindParam(":content", $content, PDO::PARAM_STR);
-$stmt->bindParam(":title"  , $title  , PDO::PARAM_STR);
-$stmt->bindParam(":date"   , $date   , PDO::PARAM_STR);
+$stmt->bindParam(':content', $content, PDO::PARAM_STR);
+$stmt->bindParam(':title'  , $title  , PDO::PARAM_STR);
+$stmt->bindParam(':date'   , $date   , PDO::PARAM_STR);
 
 $fullQuery  = $stmt->interpolateQuery();
 ```
@@ -99,16 +97,16 @@ or
 ```php
 $content    = $_POST['content'];
 $title      = $_POST['title'];
-$date       = date("Y-m-d");
+$date       = date('Y-m-d');
 
-$query      = "INSERT INTO posts SET content = ?, title = ?, date = ?"
+$query      = 'INSERT INTO posts SET content = ?, title = ?, date = ?';
 $stmt       = $pdo->prepare($query);
 
-$params     = array(
-      $content
-    , $title
-    , $date
-);
+$params     = [
+    $content, 
+    $title, 
+    $date
+];
 
 $fullQuery  = $stmt->interpolateQuery($params);
 ```
@@ -116,7 +114,14 @@ $fullQuery  = $stmt->interpolateQuery($params);
 ## Installation
 
 Preferred method: install using composer:
+### PHP 7.2+
+```json
+"require" : {
+	"xsuchy09/e_pdostatement" : "3.*"
+}
+```
 
+### PHP < 7.2
 ```json
 "require" : {
 	"xsuchy09/e_pdostatement" : "2.*"
@@ -130,20 +135,19 @@ Alternatively, you can simply download the project, put it into a suitable locat
 The EPDOStatement class extends the native \PDOStatement object, so the PDO object must be configured to use the extended definition:
 
 ```php
-<?php
-
-require_once "path/to/vendor/autoload.php";
+require_once 'path/to/vendor/autoload.php';
 
 /**
  * -- OR --
  *
- * require_once "EPDOStatement.php";
+ * require_once 'EPDOStatement.php';
  */
 
-$dsn        = "mysql:host=localhost;dbname=myDatabase";
+$dsn        = 'mysql:host=localhost;dbname=myDatabase';
 $pdo        = new PDO($dsn, $dbUsername, $dbPassword);
 
-$pdo->setAttribute(PDO::ATTR_STATEMENT_CLASS, array("EPDOStatement\EPDOStatement", array($pdo)));
+$pdo->setAttribute(PDO::ATTR_STATEMENT_CLASS, ['EPDOStatement\EPDOStatement', [$pdo]]);
+//$pdo->setAttribute(PDO::ATTR_STATEMENT_CLASS, array('EPDOStatement\EPDOStatement', array($pdo))); // older php versions
 ```
 
 That's all there is to it.

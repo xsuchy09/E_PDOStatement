@@ -1,5 +1,21 @@
 ## Change Log
 
+### 3.0.0 (2018-12-10)
+#### Added
+- PHP 7.3 support. For lower PHP versions use version 2.2.2.
+
+### 2.2.2 (2017-10-12)
+#### Fixed
+- testParam regular changed - so fulltext search is now supported.
+
+### 2.2.1 (2017-10-10)
+First version from Ing. Petr Suchý (xsuchy09)
+#### Fixed
+- When marker is word then can replaced more times.
+#### Edited
+- Composer.
+- Readme.
+
 ### 2.2.0 (2016-11-08)
 
 #### Added

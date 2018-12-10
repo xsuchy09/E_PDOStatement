@@ -1,30 +1,31 @@
 {
-      "name"        : "xsuchy09/e_pdostatement"
-    , "description" : "Drop in replacement for default PDOStatement class allowing devs to view an interpolated version of a parameterized query"
-    , "keywords"    : ["pdo", "debug", "debugger", "PDOStatement", "query", "sql", "drop-in", "replacement"]
-    , "homepage"    : "https://github.com/xsuchy09/E_PDOStatement"
-    , "license"     : "Apache-2.0"
-    , "authors"     : [
+    "name"        : "xsuchy09/e_pdostatement",
+    "description" : "Drop in replacement for default PDOStatement class allowing devs to view an interpolated version of a parameterized query",
+    "keywords"    : ["pdo", "debug", "debugger", "PDOStatement", "query", "sql", "drop-in", "replacement"],
+    "homepage"    : "https://github.com/xsuchy09/E_PDOStatement",
+    "license"     : "Apache-2.0",
+    "authors"     : [
         {
-              "name"     : "Noah Heck"
-            , "role"     : "Developer/Project Manager"
-            , "email"    : "myesain84@gmail.com"
-            , "homepage" : "https://github.com/noahheck", 
-            "name": "Ing. Petr Suchy",
-            "email": "suchy@wamos.cz",
-            "homepage": "http://www.wamos.cz/",
-            "role": "Developer (fork)"
+            "name"     : "Noah Heck",
+            "role"     : "Developer/Project Manager",
+            "email"    : "myesain84@gmail.com",
+            "homepage" : "https://github.com/noahheck",
+            "name"     : "Ing. Petr Suchy",
+            "email"    : "suchy@wamos.cz",
+            "homepage" : "https://www.wamos.cz/",
+            "role"     : "Developer (fork)"
         }
-    ]
-    , "require"     : {
-        "php"                   : ">=5.1.0"
-    }
-    , "require-dev" : {
+    ],
+    "require"     : {
+        "php"                   : ">=7.3.0",
+        "ext-pdo"               : "*"
+    },
+    "require-dev" : {
           "phpunit/phpunit"     : "4.8.*"
         , "phpunit/php-invoker" : "*"
         , "phpunit/dbunit"      : "*"
-    }
-    , "autoload"    : {
+    },
+    "autoload"    : {
         "psr-4" : {
             "EPDOStatement\\" : "src"
         }

@@ -1,7 +1,7 @@
 <?php
-
 /**
  * Copyright 2015 github.com/noahheck
+ * Copyright 2017 - 2018 github.com/xsuchy09
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,19 @@
  * limitations under the License.
  */
 
+/*
+ * Notice - can not use param type definition in override methods - Warning: Declaration of EPDOStatement should be compatible with PDOStatement...
+ */
+
 namespace EPDOStatement;
 
 use \PDO as PDO;
 use \PDOStatement as PDOStatement;
 
+/**
+ * Class EPDOStatement
+ * @package EPDOStatement
+ */
 class EPDOStatement extends PDOStatement
 {
 
@@ -28,46 +36,52 @@ class EPDOStatement extends PDOStatement
 	 * The first argument passed in should be an instance of the PDO object. If so, we'll cache it's reference locally
 	 * to allow for the best escaping possible later when interpolating our query. Other parameters can be added if
 	 * needed.
-	 * @param \PDO $pdo
+	 *
+	 * @param PDO|null $pdo
 	 */
-	protected function __construct(PDO $pdo = null)
+	protected function __construct(?PDO $pdo = null)
 	{
-		if ($pdo) {
+		if ($pdo !== null) {
 			$this->_pdo = $pdo;
 		}
 	}
 
 	/**
-	 * @var \PDO $_pdo
+	 * @var PDO $_pdo
 	 */
-	protected $_pdo = "";
+	protected $_pdo;
 
 	/**
-	 * @var str $fullQuery - will be populated with the interpolated db query string
+	 * @var string $fullQuery - will be populated with the interpolated db query string
 	 */
 	public $fullQuery;
 
 	/**
 	 * @var array $boundParams - array of arrays containing values that have been bound to the query as parameters
 	 */
-	protected $boundParams = array();
+	protected $boundParams = [];
 
 	/**
 	 * Overrides the default \PDOStatement method to add the named parameter and it's reference to the array of bound
 	 * parameters - then accesses and returns parent::bindParam method
-	 * @param str $param
-	 * @param var $value
-	 * @param int $datatype
-	 * @param int $length
-	 * @param mixed $driverOptions
+	 *
+	 * @param mixed    $param
+	 * @param mixed    $value
+	 * @param int|null $datatype
+	 * @param int      $length
+	 * @param mixed    $driverOptions
+	 *
 	 * @return bool - default of \PDOStatement::bindParam()
 	 */
-	public function bindParam($param, &$value, $datatype = PDO::PARAM_STR, $length = 0, $driverOptions = false)
+	public function bindParam($param, &$value, $datatype = null, $length = null, $driverOptions = null): bool
 	{
-		$this->boundParams[$param] = array(
-			"value" => &$value
-			, "datatype" => $datatype
-		);
+		/*if ($datatype === null) {
+			$datatype = PDO::PARAM_STR;
+		}*/
+		$this->boundParams[$param] = [
+			'value' => &$value,
+			'datatype' => $datatype
+		];
 
 		return parent::bindParam($param, $value, $datatype, $length, $driverOptions);
 	}
@@ -75,17 +89,19 @@ class EPDOStatement extends PDOStatement
 	/**
 	 * Overrides the default \PDOStatement method to add the named parameter and it's value to the array of bound values
 	 * - then accesses and returns parent::bindValue method
-	 * @param str $param
-	 * @param str $value
-	 * @param int $datatype
+	 *
+	 * @param mixed    $param
+	 * @param mixed    $value
+	 * @param int|null $datatype
+	 *
 	 * @return bool - default of \PDOStatement::bindValue()
 	 */
-	public function bindValue($param, $value, $datatype = PDO::PARAM_STR)
+	public function bindValue($param, $value, $datatype = null): bool
 	{
-		$this->boundParams[$param] = array(
-			"value" => $value
-			, "datatype" => $datatype
-		);
+		$this->boundParams[$param] = [
+			'value' => $value,
+			'datatype' => $datatype
+		];
 
 		return parent::bindValue($param, $value, $datatype);
 	}
@@ -93,14 +109,16 @@ class EPDOStatement extends PDOStatement
 	/**
 	 * Copies $this->queryString then replaces bound markers with associated values ($this->queryString is not modified
 	 * but the resulting query string is assigned to $this->fullQuery)
-	 * @param array $inputParams - array of values to replace ? marked parameters in the query string
-	 * @return str $testQuery - interpolated db query string
+	 *
+	 * @param array|null $inputParams - array of values to replace ? marked parameters in the query string
+	 *
+	 * @return string $testQuery - interpolated db query string
 	 */
-	public function interpolateQuery($inputParams = null)
+	public function interpolateQuery(?array $inputParams = null): string
 	{
 		$testQuery = $this->queryString;
 
-		$params = ($this->boundParams) ? $this->boundParams : $inputParams;
+		$params = (true === isset($this->boundParams) ? $this->boundParams : $inputParams);
 
 		if ($params) {
 
@@ -108,10 +126,10 @@ class EPDOStatement extends PDOStatement
 
 			foreach ($params as $key => $value) {
 
-				$replValue = (is_array($value)) ? $value : array(
-					'value' => $value
-					, 'datatype' => PDO::PARAM_STR
-				);
+				$replValue = (true === is_array($value) ? $value : [
+					'value' => $value,
+					'datatype' => PDO::PARAM_STR
+				]);
 
 				$replValue = $this->prepareValue($replValue);
 
@@ -124,7 +142,14 @@ class EPDOStatement extends PDOStatement
 		return $testQuery;
 	}
 
-	private function replaceMarker($queryString, $marker, $replValue)
+	/**
+	 * @param string              $queryString
+	 * @param string|int          $marker
+	 * @param string|string[]|int $replValue
+	 *
+	 * @return string|string[]|null
+	 */
+	private function replaceMarker(string $queryString, $marker, $replValue)
 	{
 		/**
 		 * UPDATE - Issue #3
@@ -132,15 +157,15 @@ class EPDOStatement extends PDOStatement
 		 * a ?, we want to check for the presence of the leading : and add it if it is not there.
 		 */
 		if (is_numeric($marker)) {
-			$marker = "\?";
+			$marker = '\?';
 			$limit = 1;
 		} else {
-			$marker = (preg_match("/^:/", $marker)) ? $marker : ":" . $marker;
+			$marker = (preg_match('/^:/', $marker)) ? $marker : ':' . $marker;
 			$limit = -1;
 		}
 
-		//$testParam = "/({$marker}(?!\w))(?=(?:[^\"']|[\"'][^\"']*[\"'])*$)/";
-		$testParam = "/({$marker}(?!\w))/";
+		//$testParam = '/({$marker}(?!\w))(?=(?:[^"\']|["\'][^"\']*["\'])*$)/';
+		$testParam = '/(' . $marker . '(?!\w))/';
 
 		return preg_replace($testParam, $replValue, $queryString, $limit);
 	}
@@ -148,10 +173,12 @@ class EPDOStatement extends PDOStatement
 	/**
 	 * Overrides the default \PDOStatement method to generate the full query string - then accesses and returns
 	 * parent::execute method
-	 * @param array $inputParams
+	 *
+	 * @param array|null $inputParams
+	 *
 	 * @return bool - default of \PDOStatement::execute()
 	 */
-	public function execute($inputParams = null)
+	public function execute($inputParams = null): bool
 	{
 		$this->interpolateQuery($inputParams);
 
@@ -167,17 +194,18 @@ class EPDOStatement extends PDOStatement
 	 *      PDO object that can perform the necessary translations and can be updated with your e.g. package management,
 	 *      etc.
 	 *
-	 * @param str $value - the value to be prepared for injection as a value in the query string
-	 * @return str $value - prepared $value
+	 * @param array $value - the value to be prepared for injection as a value in the query string
+	 *
+	 * @return string|int $value - prepared $value
 	 */
-	private function prepareValue($value)
+	private function prepareValue(array $value)
 	{
-		if ($value['value'] === NULL) {
+		if ($value['value'] === null) {
 			return 'NULL';
 		}
 
-		if (!$this->_pdo) {
-			return "'" . addslashes($value['value']) . "'";
+		if ($this->_pdo instanceof PDO === false) {
+			return '\'' . addslashes($value['value']) . '\'';
 		}
 
 		if (PDO::PARAM_INT === $value['datatype']) {
